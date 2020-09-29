@@ -1,0 +1,71 @@
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-android-extensions'
+
+ext {
+    kt_v = "1.3.50"
+}
+
+buildscript {
+    ext.kt_v = "1.3.50"
+    repositories {
+        maven {
+            url 'https://maven.aliyun.com/repository/jcenter'
+        }
+        maven {
+            url 'https://maven.aliyun.com/nexus/content/repositories/google'
+        }
+        google()
+        jcenter()
+        mavenCentral() //必须
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${this.ext.kt_v}"
+    }
+}
+
+sourceSets {
+    main {
+        groovy {
+            srcDir '../buildSrc/src/main/groovy'
+        }
+        java {
+            srcDir '../buildSrc/src/main/java'
+        }
+        kotlin {
+            srcDir '../buildSrc/src/main/kotlin'
+        }
+        resources {
+            srcDir '../buildSrc/src/main/resources'
+        }
+    }
+}
+
+repositories {
+    maven {
+        url 'https://maven.aliyun.com/repository/jcenter'
+    }
+    maven {
+        url 'https://maven.aliyun.com/nexus/content/repositories/google'
+    }
+    google()
+    jcenter()
+    mavenCentral() //必须
+}
+
+dependencies {
+    compile gradleApi() //必须
+    compile localGroovy() //必须
+    implementation 'com.android.tools.build:gradle:4.0.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kt_v"
+
+    // ASM 相关
+    implementation 'org.ow2.asm:asm:7.2'
+    implementation 'org.ow2.asm:asm-util:7.2'
+    implementation 'org.ow2.asm:asm-commons:7.2'
+}
+
+sourceCompatibility = "8"
+targetCompatibility = "8"

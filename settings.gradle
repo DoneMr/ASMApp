@@ -1,0 +1,3 @@
+include ':testlibrary'
+include ':app'
+rootProject.name = "ASMApp"
