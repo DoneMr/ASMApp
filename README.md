@@ -6,6 +6,8 @@
 
 [本插件源码地址~](https://github.com/DoneMr/ASMApp)
 
+[博客地址](https://www.jianshu.com/p/1a7ea8cddec5)
+
 使用ASM技术，在android transform过程中完成对Java或者kotlin方法的函数耗时代码插桩，用于解决性能问题做函数耗时计算查看代码优化成果的辅助工具
 
 仅需要关注buildSrc即可
