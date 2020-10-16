@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
-apply plugin: 'com.done.plugin'
-insectConfig {
-    annotationNames = ['com.done.asm.Cost',
-                       'com.done.asm.KtCost']
-    methodOwner = 'com.done.asm.Utils'
-    methodName = 'printCost'
-    isDebug = true
-}
+//apply plugin: 'com.done.plugin'
+//insectConfig {
+//    annotationNames = ['com.done.asm.Cost',
+//                       'com.done.asm.KtCost']
+//    methodOwner = 'com.done.asm.Utils'
+//    methodName = 'printCost'
+//    isDebug = true
+//}
 
 android {
     compileSdkVersion 29

@@ -4,9 +4,9 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'com.done.plugin'
 insectConfig {
-    annotationNames = ['com.done.testlibrary.LibCost']
-    methodOwner = 'com.done.asm.Utils'
-    methodName = 'printCost'
+    annotationNames = ['com.done.testlibrary.LibCost', 'com.done.testlibrary.LibJCost']
+    methodOwner = 'com.done.testlibrary.Utils'
+    methodName = 'logCost'
     isDebug = true
 }
 

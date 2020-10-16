@@ -28,9 +28,9 @@ buildscript {
 
 sourceSets {
     main {
-        groovy {
-            srcDir '../buildSrc/src/main/groovy'
-        }
+//        groovy {
+//            srcDir '../buildSrc/src/main/groovy'
+//        }
         java {
             srcDir '../buildSrc/src/main/java'
         }
@@ -56,15 +56,11 @@ repositories {
 }
 
 dependencies {
-    compile gradleApi() //必须
-    compile localGroovy() //必须
+    implementation gradleApi() //必须
+    implementation localGroovy() //必须
     implementation 'com.android.tools.build:gradle:4.0.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kt_v"
 
-    // ASM 相关
-    implementation 'org.ow2.asm:asm:7.2'
-    implementation 'org.ow2.asm:asm-util:7.2'
-    implementation 'org.ow2.asm:asm-commons:7.2'
 }
 
 sourceCompatibility = "8"
