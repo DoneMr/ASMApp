@@ -15,4 +15,10 @@ public class Utils {
     public static void printCost(String method, long start) {
         Log.d("InsectCost", String.format("%s method cost: %sms", method, (SystemClock.uptimeMillis() - start)));
     }
+
+
+    public void test() {
+        String clazzName = getClass().getName();
+        System.out.println("class name：" + clazzName);
+    }
 }
