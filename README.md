@@ -333,3 +333,5 @@ class InsectMethodVisitorProxy(api: Int, methodVisitor: MethodVisitor, access: I
         }
     }
 ```
+
+TODO:1、优化插桩耗时，利用Global线程池来并发插桩；2、支持增量编译，同样为了优化编译耗时~
