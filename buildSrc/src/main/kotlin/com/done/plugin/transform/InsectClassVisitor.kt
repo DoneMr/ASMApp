@@ -67,13 +67,14 @@ class InsectClassVisitor(private val insectExtension: InsectExtension) : ClassNo
          * @param maxLocals maximum number of local variables for the method.
          */
         override fun visitMaxs(maxStack: Int, maxLocals: Int) {
-            var maxStackCount = 0
-            var maxLocalsCount = 0
-            for (methodImpl in mMethodImpls) {
-                maxStackCount += methodImpl.value.getMaxStack()
-                maxLocalsCount += methodImpl.value.getMaxLocals()
-            }
-            super.visitMaxs(maxStack + maxStackCount, maxLocals + maxLocalsCount)
+//            var maxStackCount = 0
+//            var maxLocalsCount = 0
+//            for (methodImpl in mMethodImpls) {
+//                maxStackCount += methodImpl.value.getMaxStack()
+//                maxLocalsCount += methodImpl.value.getMaxLocals()
+//            }
+//            super.visitMaxs(maxStack + maxStackCount, maxLocals + maxLocalsCount)
+            super.visitMaxs(maxStack, maxLocals)
         }
     }
 }
