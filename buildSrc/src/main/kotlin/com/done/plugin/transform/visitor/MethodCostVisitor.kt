@@ -1,6 +1,6 @@
 package com.done.plugin.transform.visitor
 
-import com.done.plugin.InsectExtension
+import com.done.plugin.extension.PExtensionWrapper
 import com.done.plugin.util.PLogger
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -16,7 +16,7 @@ import org.objectweb.asm.commons.Method
  * @date 2020/11/12
  */
 class MethodCostVisitor(api: Int, methodVisitor: MethodVisitor, access: Int, name: String, descriptor: String,
-                        ownerClassName: String, insectExtension: InsectExtension)
+                        ownerClassName: String, insectExtension: PExtensionWrapper)
     : BaseVisitMethodImpl(api, methodVisitor, access, name, descriptor, ownerClassName, insectExtension) {
 
     private var mStartVar: Int? = null
@@ -24,17 +24,15 @@ class MethodCostVisitor(api: Int, methodVisitor: MethodVisitor, access: Int, nam
     private var mDoCost = false
 
     override fun onVisitAnnotation(annotationVisitor: org.objectweb.asm.AnnotationVisitor?, descriptor: String?, visible: Boolean) {
-        val hasMethod = !insectExtension.annotationNames.isNullOrEmpty()
+        val insectExtension = mEx.methodCostEx
+        val hasMethod = !insectExtension?.annotationNames.isNullOrEmpty()
         if (hasMethod) {
-            insectExtension.annotationNames?.forEach { annotation ->
+            insectExtension!!.annotationNames?.forEach { annotation ->
                 val relpaceAnno = "L${annotation.replace(".", "/")};"
                 mDoCost = mDoCost || relpaceAnno == descriptor ?: "nonono"
             }
         }
-        mDoCost = mDoCost && !isAbstract()
-        if (mDoCost) {
-            PLogger.i("${this.ownerClassName}.${this.name} 可以开始进行插桩")
-        }
+        mDoCost = mDoCost && !isABS()
     }
 
     override fun onMethodEnter(adviceAdapter: AdviceAdapter?, methodVisitor: MethodVisitor?) {
@@ -64,11 +62,11 @@ class MethodCostVisitor(api: Int, methodVisitor: MethodVisitor, access: Int, nam
     }
 
     private fun appendStaticMethodExit(adapter: AdviceAdapter, methodVisitor: MethodVisitor) {
-        val name = "$ownerClassName.$name => cost ".replace("/", ".")
+        val name = "$ownerClassName#$name => cost ".replace("/", ".")
         methodVisitor.visitLdcInsn(name)
         methodVisitor.visitVarInsn(AdviceAdapter.LLOAD, mStartVar!!)
-        methodVisitor.visitMethodInsn(AdviceAdapter.INVOKESTATIC, insectExtension.methodOwner.replace(".", "/"),
-                insectExtension.methodName, "(Ljava/lang/String;J)V", false)
+        methodVisitor.visitMethodInsn(AdviceAdapter.INVOKESTATIC, mEx.methodCostEx!!.methodOwner.replace(".", "/"),
+                mEx.methodCostEx!!.methodName, "(Ljava/lang/String;J)V", false)
     }
 
     private fun appendObjectMethodExit(adapter: AdviceAdapter, methodVisitor: MethodVisitor) {
@@ -79,12 +77,12 @@ class MethodCostVisitor(api: Int, methodVisitor: MethodVisitor, access: Int, nam
         methodVisitor.visitMethodInsn(AdviceAdapter.INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false)
         methodVisitor.visitMethodInsn(AdviceAdapter.INVOKEVIRTUAL, "java/lang/Class", "getName", "()Ljava/lang/String;", false)
         methodVisitor.visitMethodInsn(AdviceAdapter.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false)
-        methodVisitor.visitLdcInsn("$name")
+        methodVisitor.visitLdcInsn("#$name")
         methodVisitor.visitMethodInsn(AdviceAdapter.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false)
         methodVisitor.visitMethodInsn(AdviceAdapter.INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false)
         methodVisitor.visitVarInsn(AdviceAdapter.LLOAD, mStartVar!!)
-        methodVisitor.visitMethodInsn(AdviceAdapter.INVOKESTATIC, insectExtension.methodOwner.replace(".", "/"),
-                insectExtension.methodName, "(Ljava/lang/String;J)V", false)
+        methodVisitor.visitMethodInsn(AdviceAdapter.INVOKESTATIC, mEx.methodCostEx!!.methodOwner.replace(".", "/"),
+                mEx.methodCostEx!!.methodName, "(Ljava/lang/String;J)V", false)
     }
 
     override fun getMaxLocals(): Int = 3

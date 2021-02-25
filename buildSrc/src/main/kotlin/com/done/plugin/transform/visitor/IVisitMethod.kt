@@ -1,6 +1,7 @@
 package com.done.plugin.transform.visitor
 
 import org.objectweb.asm.AnnotationVisitor
+import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.commons.AdviceAdapter
 
@@ -12,6 +13,8 @@ import org.objectweb.asm.commons.AdviceAdapter
  * @date 2020/11/12
  */
 interface IVisitMethod {
+
+    fun visitLineNumber(adviceAdapter: AdviceAdapter?, methodVisitor: MethodVisitor?, line: Int, start: Label?)
 
     fun onVisitAnnotation(annotationVisitor: AnnotationVisitor?, descriptor: String?, visible: Boolean)
 

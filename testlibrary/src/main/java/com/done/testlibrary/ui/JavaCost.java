@@ -1,10 +1,8 @@
 package com.done.testlibrary.ui;
 
-import android.os.SystemClock;
 import android.util.Log;
 
 import com.done.testlibrary.LibJCost;
-import com.done.testlibrary.Utils;
 
 /**
  * File:com.done.testlibrary.ui.JavaCost
@@ -24,7 +22,9 @@ class JavaCost {
 
     @LibJCost
     public void testAsm() {
-        long startTime = SystemClock.uptimeMillis();
-        Utils.logCost(getClass().getName() + "testAsm", startTime);
+        Log.d("asd", "asd");
+        Log.d("asd", "asd");
+        Log.d("asd", "asd");
+        Log.d("asd", "asd");
     }
 }

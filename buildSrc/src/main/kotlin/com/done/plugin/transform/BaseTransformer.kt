@@ -5,6 +5,7 @@ import com.android.build.api.transform.Transform
 import com.android.build.gradle.internal.pipeline.TransformManager
 import com.done.plugin.booster.SCOPE_FULL_WITH_FEATURES
 import com.done.plugin.booster.SCOPE_PROJECT
+import com.done.plugin.extension.PExtensionWrapper
 import com.done.plugin.util.PLogger
 import org.gradle.api.Project
 
@@ -17,6 +18,8 @@ import org.gradle.api.Project
  * @date 2020/10/12
  */
 abstract class BaseTransformer(project: Project) : Transform() {
+
+    protected var mPEx: PExtensionWrapper? = null
 
     protected var mProject: Project = project
 

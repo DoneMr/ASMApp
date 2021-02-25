@@ -1,8 +1,10 @@
 package com.done.plugin.transform
 
 import com.android.build.api.transform.TransformInvocation
-import com.done.plugin.InsectExtension
 import com.done.plugin.constant.InsectPluginConstants
+import com.done.plugin.extension.BlockExtension
+import com.done.plugin.extension.MethodCostExtension
+import com.done.plugin.extension.PExtensionWrapper
 import com.done.plugin.util.PLogger
 import org.gradle.api.Project
 
@@ -18,23 +20,10 @@ class InsectTransformer(project: Project) : BaseTransformer(project) {
     private lateinit var mHelper: InsectTransformHelper
 
     override fun transform(transformInvocation: TransformInvocation?) {
-        val insectExtension = mProject.extensions.findByName(InsectPluginConstants.INSECT_CONFIG) as InsectExtension
-        if (insectExtension.isDebug) {
-            mHelper = InsectTransformHelper(insectExtension)
-            //TODO 以下增加了增量编译后再进行编写
-//            if (isIncremental) {
-//                PLogger.log("增量编译，走父类的transform流程")
-//                super.transform(transformInvocation)
-//            } else {
-//                if (transformInvocation != null) {
-//                    transformInvocation.outputProvider?.deleteAll()
-//                    PLogger.log("命中transform， 走transform逻辑")
-//                    doFullTransform(transformInvocation)
-//                } else {
-//                    PLogger.log("transformInvocation为空，走父类的transform流程")
-//                    super.transform(transformInvocation)
-//                }
-//            }
+        initExtension()
+        val insectExtension = mPEx?.methodCostEx
+        if (insectExtension?.isDebug == true || mPEx?.blockEx?.isDebug == true) {
+            mHelper = InsectTransformHelper(mPEx!!)
             if (transformInvocation != null) {
                 transformInvocation.outputProvider?.deleteAll()
                 doFullTransform(transformInvocation)
@@ -45,6 +34,31 @@ class InsectTransformer(project: Project) : BaseTransformer(project) {
         } else {
             PLogger.e("release下编译，不进行字节码插桩，走父类的transform")
             super.transform(transformInvocation)
+        }
+    }
+
+    private fun initExtension() {
+        mPEx = mProject.extensions.findByType(PExtensionWrapper::class.java)
+        mPEx?.blockEx?.let { blockConfig ->
+            var sb = StringBuilder(" pkg whitelist:")
+            if (!blockConfig.packageWhitelist.isNullOrEmpty()) {
+                blockConfig.packageWhitelist!!.forEach { pkg ->
+                    sb.append("'$pkg' ")
+                }
+            }
+            sb.append("\n class whitelist:")
+            if (!blockConfig.classWhitelist.isNullOrEmpty()) {
+                blockConfig.classWhitelist!!.forEach { pkg ->
+                    sb.append("'$pkg' ")
+                }
+            }
+            sb.append("\n method whitelist:")
+            if (!blockConfig.methodWhitelist.isNullOrEmpty()) {
+                blockConfig.methodWhitelist!!.forEach { pkg ->
+                    sb.append("'$pkg' ")
+                }
+            }
+            PLogger.log("过滤白名单：\n$sb")
         }
     }
 

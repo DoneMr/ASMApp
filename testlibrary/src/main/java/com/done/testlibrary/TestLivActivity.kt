@@ -24,7 +24,7 @@ class TestLivActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-
+        mockBlock()
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -39,6 +39,14 @@ class TestLivActivity : AppCompatActivity() {
                 R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow), drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+    }
+
+    private fun mockBlock() {
+        var count = 0;
+        for (index in 1..(Int.MAX_VALUE / 2)) {
+            count++
+        }
+        println("$count")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -3,12 +3,23 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'com.done.plugin'
+
 insectConfig {
-    annotationNames = ['com.done.testlibrary.LibCost', 'com.done.testlibrary.LibJCost']
-    methodOwner = 'com.done.testlibrary.Utils'
-    methodName = 'logCost'
-    isDebug = true
+    methodCostEx {
+        annotationNames = ['com.done.testlibrary.LibCost', 'com.done.testlibrary.LibJCost']
+        methodOwner = 'com.done.testlibrary.Utils'
+        methodName = 'logCost'
+        isDebug = true
+    }
+
+    blockEx {
+        classWhitelist = ['com.done.testlibrary.none.TestNone', 'com.done.testlibrary.Utils']
+        insertMethodIn = 'com.done.testlibrary.Utils.methodIn'
+        insertMethodOut = 'com.done.testlibrary.Utils.methodOut'
+        isDebug = true
+    }
 }
+
 
 android {
     compileSdkVersion 29

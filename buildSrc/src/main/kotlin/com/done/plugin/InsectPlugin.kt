@@ -4,6 +4,7 @@ import com.android.build.gradle.AppExtension
 import com.android.build.gradle.LibraryExtension
 import com.done.plugin.booster.getAndroid
 import com.done.plugin.constant.InsectPluginConstants
+import com.done.plugin.extension.PExtensionWrapper
 import com.done.plugin.transform.InsectTransformer
 import com.done.plugin.util.PLogger
 import org.gradle.api.Plugin
@@ -22,6 +23,19 @@ class InsectPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         configProj(project)
+        initTransformPlugin(project)
+    }
+
+    private fun configProj(project: Project) {
+        mProject = project
+                .also {
+//                    it.extensions.add(InsectPluginConstants.INSECT_CONFIG, InsectExtension())
+//                    it.extensions.add(InsectPluginConstants.BLOCK_CONFIG, BlockExtension())
+                    it.extensions.add(InsectPluginConstants.INSECT_CONFIG, PExtensionWrapper::class.java)
+                }
+    }
+
+    private fun initTransformPlugin(project: Project) {
         when {
             //在app中依赖
             project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.dynamic-feature") -> {
@@ -37,37 +51,6 @@ class InsectPlugin : Plugin<Project> {
                     libExt.registerTransform(InsectTransformer(project))
                 }
             }
-        }
-//        initTransformer()
-    }
-
-    private fun configProj(project: Project) {
-        mProject = project
-                .also {
-                    it.extensions.add(InsectPluginConstants.INSECT_CONFIG, InsectExtension())
-                }
-    }
-
-    private fun initTransformer() {
-        try {
-            when {
-                //在app中依赖
-                mProject.plugins.hasPlugin("com.android.application") || mProject.plugins.hasPlugin("com.android.dynamic-feature") -> {
-                    mProject.getAndroid<AppExtension>().let { androidExt ->
-                        PLogger.log("application register plugin")
-                        androidExt.registerTransform(InsectTransformer(mProject))
-                    }
-                }
-                //在lib中依赖
-                mProject.plugins.hasPlugin("com.android.library") -> {
-                    mProject.getAndroid<LibraryExtension>().let { libExt ->
-                        PLogger.log("lib register plugin")
-                        libExt.registerTransform(InsectTransformer(mProject))
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            PLogger.log("insect register plugin exception", e)
         }
     }
 }

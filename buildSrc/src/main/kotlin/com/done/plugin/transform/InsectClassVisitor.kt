@@ -1,14 +1,17 @@
 package com.done.plugin.transform
 
-import com.done.plugin.InsectExtension
+import com.done.plugin.extension.MethodCostExtension
+import com.done.plugin.extension.PExtensionWrapper
 import com.done.plugin.transform.visitor.BaseVisitMethodImpl
+import com.done.plugin.transform.visitor.ClueMethodVisitor
 import com.done.plugin.transform.visitor.MethodCostVisitor
-import com.done.plugin.util.PLogger
-import org.objectweb.asm.*
+import org.objectweb.asm.AnnotationVisitor
+import org.objectweb.asm.Label
+import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.commons.AdviceAdapter
-import org.objectweb.asm.commons.Method
 import org.objectweb.asm.tree.ClassNode
-import java.util.concurrent.ConcurrentHashMap
+import org.objectweb.asm.tree.InsnList
 
 /**
  * File:com.done.plugin.transform.InsectClassVisitor
@@ -17,25 +20,66 @@ import java.util.concurrent.ConcurrentHashMap
  * @author maruilong
  * @date 2020/10/16
  */
-class InsectClassVisitor(private val insectExtension: InsectExtension) : ClassNode(Opcodes.ASM7) {
+class InsectClassVisitor(private val insectExtension: PExtensionWrapper) : ClassNode(Opcodes.ASM7) {
 
     override fun visitMethod(access: Int, name: String?, descriptor: String?, signature: String?, exceptions: Array<out String>?): MethodVisitor {
         val methodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions)
         return InsectMethodVisitorProxy(super.api, methodVisitor, access, name!!, descriptor!!,
-                this@InsectClassVisitor.name, insectExtension).also { proxy ->
-            proxy.appendMethodImpl(MethodCostVisitor(super.api, methodVisitor, access, name, descriptor,
-                    this@InsectClassVisitor.name, insectExtension))
+                this@InsectClassVisitor.name, insectExtension.methodCostEx!!).also { proxy ->
+            //最后一次插桩，针对方法进入就是插在第一行，针对方法退出就是插在最后时机的第一个行
+            if (insectExtension.isBlockValid()) {
+                proxy.appendMethodImpl(ClueMethodVisitor(super.api, methodVisitor, access, name, descriptor,
+                        this@InsectClassVisitor.name, insectExtension))
+            }
+            //方法耗时
+            if (insectExtension.isCostValid()) {
+                proxy.appendMethodImpl(MethodCostVisitor(super.api, methodVisitor, access, name, descriptor,
+                        this@InsectClassVisitor.name, insectExtension))
+            }
         }
     }
 
     class InsectMethodVisitorProxy(api: Int, methodVisitor: MethodVisitor, access: Int, name: String, descriptor: String,
-                                   val ownerClassName: String = "class", val insectExtension: InsectExtension)
+                                   val ownerClassName: String = "class", val methodCostExtension: MethodCostExtension)
         : AdviceAdapter(api, methodVisitor, access, name, descriptor) {
 
-        private val mMethodImpls by lazy { ConcurrentHashMap<Int, BaseVisitMethodImpl>() }
+        override fun visitInsn(opcode: Int) {
+            super.visitInsn(opcode)
+        }
+
+        private fun isEmptyMethod(list: InsnList): Boolean {
+            val iterator = list.iterator()
+            while (iterator.hasNext()) {
+                val node = iterator.next()
+                val opcode = node.opcode
+                if (opcode == -1) {
+                    continue
+                } else {
+                    return false
+                }
+            }
+            return true
+        }
+
+        private val mMethodImpls by lazy {
+            LinkedHashMap<Int, BaseVisitMethodImpl>()
+        }
 
         fun appendMethodImpl(methodVisitor: BaseVisitMethodImpl) {
-            mMethodImpls[methodVisitor.hashCode()] = methodVisitor
+            putVisitorImpl(methodVisitor)
+        }
+
+        private fun putVisitorImpl(methodVisitor: BaseVisitMethodImpl) {
+            synchronized(mMethodImpls) {
+                mMethodImpls[methodVisitor.hashCode()] = methodVisitor
+            }
+        }
+
+        override fun visitLineNumber(line: Int, start: Label?) {
+            super.visitLineNumber(line, start)
+            for (methodImpl in mMethodImpls) {
+                methodImpl.value.visitLineNumber(this, super.mv, line, start)
+            }
         }
 
         override fun visitAnnotation(descriptor: String?, visible: Boolean): AnnotationVisitor {

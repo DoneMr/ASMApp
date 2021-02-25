@@ -10,5 +10,10 @@ package com.done.plugin.constant
 class InsectPluginConstants {
     companion object {
         val INSECT_CONFIG = "insectConfig"
+
+        /**
+         * 搭配卡顿监控配置使用
+         */
+        val BLOCK_CONFIG = "blockConfig"
     }
 }
